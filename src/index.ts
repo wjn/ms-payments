@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { app } from './app';
 import { NotFoundError, logIt, LogType, natsWrapper } from '@nielsendigital/ms-common';
+import { OrderCreatedListener } from './events/listeners/order-created-listener';
+import { OrderCanceledListener } from './events/listeners/order-canceled-listener';
 
 const startApp = async () => {
   logIt.out(LogType.STARTED, 'tickets service started');
@@ -54,8 +56,15 @@ const startApp = async () => {
   }
 
   // Event Listeners
-  // try {
-  // } catch (error) {}
+  try {
+    logIt.out(LogType.INFO, 'Attempting to load Listeners');
+
+    new OrderCreatedListener(natsWrapper.client).listen();
+    new OrderCanceledListener(natsWrapper.client).listen();
+  } catch (err) {
+    logIt.out(LogType.ERROR, 'Listeners failed to load');
+    logIt.out(LogType.ERROR, err);
+  }
 
   // connect to MongoDB
   try {
@@ -69,6 +78,7 @@ const startApp = async () => {
     logIt.out(LogType.SUCCESS, 'Connected to mongoDB');
     // -----
   } catch (err) {
+    logIt.out(LogType.ERROR, `Database failed to load.`);
     logIt.out(LogType.ERROR, err);
   }
 

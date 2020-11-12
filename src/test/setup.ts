@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { app } from '../app';
 import request, { Test } from 'supertest';
 import jwt from 'jsonwebtoken';
-import { TicketAttrs } from '../models/ticket';
+import { TicketData } from '@nielsendigital/ms-common';
 
 declare global {
   namespace NodeJS {
@@ -18,7 +18,7 @@ declare global {
       invalidTicketPriceLessThanZero: number;
       generatedTicketId: string;
       generatedOrderId: string;
-      ticketBodyValid: TicketAttrs;
+      ticketBodyValid: any;
       OMIT_VALIDATION_COOKIE: undefined;
       USE_GENERATED_COOKIE: null;
       getTicket(ticketId: string): Test;
