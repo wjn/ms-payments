@@ -3,13 +3,12 @@ import mongoose from 'mongoose';
 import { app } from '../app';
 import request, { Test } from 'supertest';
 import jwt from 'jsonwebtoken';
-import { TicketData } from '@nielsendigital/ms-common';
 
 declare global {
   namespace NodeJS {
     interface Global {
       getUserIdFromCookie(cookie: string): string;
-      getAuthCookie(): string[];
+      getAuthCookie(id?: string): string[];
       validEmail: string;
       validTicketTitle: string;
       validTicketTitleUpdated: string;
@@ -18,6 +17,7 @@ declare global {
       invalidTicketPriceLessThanZero: number;
       generatedTicketId: string;
       generatedOrderId: string;
+      generatedUserId: string;
       ticketBodyValid: any;
       OMIT_VALIDATION_COOKIE: undefined;
       USE_GENERATED_COOKIE: null;
@@ -84,17 +84,18 @@ global.validTicketPriceUpdated = 100;
 global.invalidTicketPriceLessThanZero = -10;
 global.generatedTicketId = getMongooseId();
 global.generatedOrderId = getMongooseId();
+global.generatedUserId = getMongooseId();
 global.ticketBodyValid = {
   title: global.validTicketTitle,
   price: global.validTicketPrice,
   userId: getMongooseId(),
 };
 
-global.getAuthCookie = (): string[] => {
+global.getAuthCookie = (id?: string): string[] => {
   // build a JWT payload {id, email}
   const payload = {
     // random generated id
-    id: getMongooseId(),
+    id: id || getMongooseId(),
     email: global.validEmail,
   };
 

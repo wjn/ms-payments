@@ -4,6 +4,7 @@ import { json } from 'body-parser';
 import cookieSession from 'cookie-session';
 
 import { currentUser, errorHandler, NotFoundError } from '@nielsendigital/ms-common';
+import { createChargeRouter } from './routes/new';
 
 // Routers
 
@@ -19,6 +20,9 @@ app.use(
 );
 // currentUser must be used after the CookieSession creates req.cookie
 app.use(currentUser);
+
+// Routes
+app.use(createChargeRouter);
 
 app.all('*', async (req, res, next) => {
   throw new NotFoundError('Page not found.');
