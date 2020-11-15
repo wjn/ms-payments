@@ -32,12 +32,14 @@
     "mongoose": "^5.10.6",
     "mongoose-update-if-current": "^1.4.0",
     "node-nats-streaming": "^0.3.2",
+    "stripe": "^8.121.0",
     "ts-node-dev": "^1.0.0-pre.62",
     "typescript": "^4.0.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
     "@types/supertest": "^2.0.10",
+    "dotenv": "^8.2.0",
     "jest": "^26.5.2",
     "mongodb-memory-server": "^6.7.6",
     "supertest": "^4.0.2",
