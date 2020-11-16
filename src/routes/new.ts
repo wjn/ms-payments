@@ -9,9 +9,12 @@ import {
   OrderStatus,
   logIt,
   LogType,
+  natsWrapper,
 } from '@nielsendigital/ms-common';
 import { Order } from '../models/order';
+import { Payment } from '../models/payment';
 import { stripe } from '../stripe';
+import { PaymentCreatedPublisher } from '../events/publishers/payment-created-publisher';
 
 // instantiate router
 const router = express.Router();
@@ -64,7 +67,7 @@ router.post(
     }
 
     // create Stripe Charge
-    await stripe.charges.create({
+    const charge = await stripe.charges.create({
       currency: 'usd',
       // convert dollars into cents for stripe
       amount: order.price * 100,
@@ -74,7 +77,19 @@ router.post(
 
     logIt.out(LogType.SENT, `Charge for order (${order.id} for $ ${order.price}) with token ${token}`);
 
-    res.status(201).send({ success: true, orderId: order.id, price: order.price, token: token });
+    const payment = Payment.build({
+      orderId,
+      stripeId: charge.id,
+    });
+    await payment.save();
+
+    new PaymentCreatedPublisher(natsWrapper.client).publish({
+      id: payment.id,
+      orderId: payment.orderId,
+      stripeId: payment.stripeId,
+    });
+
+    res.status(201).send({ id: payment.id });
   }
 );
 

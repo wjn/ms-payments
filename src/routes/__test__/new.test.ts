@@ -2,6 +2,7 @@ import { OrderStatus } from '@nielsendigital/ms-common';
 import request from 'supertest';
 import { app } from '../../app';
 import { Order } from '../../models/order';
+import { Payment } from '../../models/payment';
 import { stripe } from '../../stripe';
 
 it('should return 404 when order does not exist for purchase', async () => {
@@ -89,7 +90,14 @@ it('should return a 201 with valid inputs', async () => {
   });
 
   expect(stripeCharge).toBeDefined();
-
   expect(stripeCharge!.currency).toEqual('usd');
   expect(stripeCharge!.amount).toEqual(price * 100);
+
+  const payment = await Payment.findOne({
+    orderId: order.id,
+    // we verified that stripeCharge was defined above
+    stripeId: stripeCharge!.id,
+  });
+  expect(payment).not.toBeNull();
+  expect(payment!.id).toEqual(response.body.id);
 });
